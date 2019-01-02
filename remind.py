@@ -15,7 +15,6 @@ def cleanUp():
 # time delimiter is located so the message we want to 
 # remind the user about is located from arglist[1: index -1]
 def getTimeIndex(argList):
-    waitTimeBegin = 0
     timeDelimeters = ["in", "at", "on"]
     reversed_argList = list(reversed(argList))
     ti_index = []
@@ -30,14 +29,8 @@ def getTimeIndex(argList):
         if ti_index:
             return len(argList) - min(ti_index)
 
-def getMin(argList):
-    minName = ["min", "minute", "minutes"]
-    test = " ".join(argList[1:])
-    for i, v in enumerate(argList):
-        if v in minName:
-            return (i, argList[i - 1])
-    # minResult = [str(el).lower() in minName for el in argList]
-    print("test")
+def getTimePairs(time_str):
+    print(time_str)
 
 
 if __name__ == '__main__':
@@ -48,9 +41,16 @@ if __name__ == '__main__':
         print("no args")
         exit()
     time_delimeter = getTimeIndex(argList)
+    if time_delimeter is None:
+        message = " ".join(argList)
+        print(f'"{message}" is an invalid reminder')
+        exit()
     time_str = " ".join(argList[time_delimeter:])
     message_str = " ".join(argList[1:time_delimeter - 1])
     delimeter = argList[time_delimeter - 1]
+    if delimeter = 'on':
+        getTimePairs(time_str)
+        exit()    
     if min:
         #time.sleep(min[0])
         Notify.init("Remind Me")
