@@ -10,19 +10,9 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            // args for 'in'
-            "args": ["go", "to", "sams", "game", "in", "45", "min"],
-            //"args": ["go", "to", "sams", "game", "in", "2", "hours"],
-            //"args": ["go", "to", "sams", "game", "in", "45", "seconds"],
-            //"args": ["go", "to", "sams", "game", "in", "1", "hour", "and", "45", "min"],
-
-            // args for 'every'
+            "args": ["go", "to", "sams", "game", "in", "1", "hour", "and", "45", "min"],
             //"args": ["pick", "up", "kids","from","soccer", "every", "tuesday", "at", "3", "pm"]
-
-            // args for 'at'
             //"args": ["go", "to", "see", "aquaman", "at", "7", "pm"]
-
-            // args for 'on'
             //"args": ["flight", "to", "sacramento", "on", "january", "1st", "2019"]                        
         },
         {
