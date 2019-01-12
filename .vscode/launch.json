@@ -8,7 +8,7 @@
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "./remind.py",
             "console": "integratedTerminal",
             "args": ["go", "to", "sams", "game", "in", "1", "hour", "and", "45", "min"],
             //"args": ["pick", "up", "kids","from","soccer", "every", "tuesday", "at", "3", "pm"]

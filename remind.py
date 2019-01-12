@@ -1,13 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import time
-import gi
 import sys
-gi.require_version('Notify', '0.7')
-from gi.repository import Notify
-
-def cleanUp():
-    Notify.uninit()
+from ReminderDaemon import RDaemon
+from time_converter import TimeConverter
 
 # this funciton returns an index that corresponds to where
 # in the argList that the time object begins.
@@ -29,64 +25,56 @@ def getTimeIndex(argList):
         if ti_index:
             return len(argList) - min(ti_index)
 
-# This function takes a time string for the delimeter 'in'
-# and splits it into a list of 2-tuples. Each tuple represents
-# an amount of time. 
-def getTimePairs_in(time_str):
-    ti_list = time_str.split()
-    ti_list.remove('and')
-    if (len(ti_list) % 2) != 0:
-        print("You had malformatted time string for in. Accept input like '1 hour and 15 min")
-        exit()
-    tup_list = []
-    for i in range(len(ti_list) / 2):
-        index = i * 2
-        temp_list = [ti_list[index], ti_list[index + 1]]
-        tup_list.append(tuple(temp_list))
-    return tup_list
-
-def getTotalSeconds(time_tuple):
-    minutes = ['min', 'minutes', 'm']
-    hours = ['hours', 'hour', 'h']
-    seconds = ['seconds', 'sec', 's']
-    total_time = 0
-    for tu in time_tuple:
-        measurment = str(tu[1]).lower()
-        if measurment in minutes:
-            total_time += int(tu[0]) * 60
-            continue
-        if measurment in hours:
-            total_time += int(tu[0]) * 60 * 60
-            continue
-        if measurment in seconds:
-            total_time += int(tu[0])
-            continue
-    return total_time
-
-
+# This funciton writes to the reminder_log
+# storing the message and the time
+# message - what you want to be reminded about
+# time - when you want to be reminded (for first run seconds til reminder)
+def writeMessage(message, time):
+    log_file = '/tmp/reminder_log'
+    file(log_file, 'a').write("%d %s\n" % (int(time),str(message)))
 
 if __name__ == '__main__':
-    curTime = time.localtime(time.time())
-    numArgs = len(sys.argv)
+    timeConverter = TimeConverter()
+    pid_location = '/tmp/reminder.pid'
     argList = sys.argv
-    if numArgs == 0:
+    if len(sys.argv) == 1:
         print('no args')
         exit()
-    time_delimeter = getTimeIndex(argList)
-    if time_delimeter is None:
-        message = ' '.join(argList)
-        print('Entered an invalid reminder')
-        exit()
-    time_str = ' '.join(argList[time_delimeter:])
-    message_str = ' '.join(argList[1:time_delimeter - 1])
-    delimeter = argList[time_delimeter - 1]
-    if delimeter == 'in':
-        time_list = getTimePairs_in(time_str)
-        total_time = getTotalSeconds(time_list)
-        exit()
-    if min:
-        #time.sleep(min[0])
-        Notify.init('Remind Me')
-        notification = Notify.Notification.new('REMINDER', str(argList))
-        notification.show()
+    rDaemon = RDaemon(pid_location)
+
+    # Check if the pid exists
+    try:
+            pf = file(pid_location,'r')
+            pid = int(pf.read().strip())
+            pf.close()
+    except IOError:
+            pid = None
+
+    if len(sys.argv) > 2:
+        time_delimeter = getTimeIndex(argList)
+        if time_delimeter is None:
+            message = ' '.join(argList)
+            print('Entered an invalid reminder')
+            exit()
+
+        time_str = ' '.join(argList[time_delimeter:])
+        message_str = ' '.join(argList[1:time_delimeter - 1])
+        delimeter = argList[time_delimeter - 1]
+
+        if delimeter == 'in':
+            total_time = timeConverter.getTotalSeconds(timeConverter.getTimePairs_in(time_str))
+            writeMessage(message_str, timeConverter.getSecondsTillReminder(total_time))
+            if not pid:
+                rDaemon.start()
+            exit()
+
+    # Check if the command is to kill the reminder daemon
+    kill = None
+    if len(sys.argv) == 2 and argList[1] == 'kill':
+        kill = True
+    if kill:
+        rDaemon.stop()
+    else:
+        rDaemon.daemonize()
+        rDaemon.run()        
 
