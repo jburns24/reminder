@@ -5,17 +5,36 @@ from signal import SIGTERM
 from daemon import Daemon
 from time_converter import TimeConverter
 
+## To Do chang the daemon to only open the file and read in lines if the
+## last modified time is different. 
+
 # Subclass for daemon this will read from the reminder_log
 # read all lines in the reminder log and if the current time
-# equals one of the reminder times send that reminder. 
+# equals one of the reminder times send that reminder.
 # then removes that line
 class RDaemon(Daemon):
         def run(self):
                 while True:
-                        Notify.init('Remind Me')
-                        time.sleep(10)
-                        notification = Notify.Notification.new('REMINDER', 'running')
-                        notification.show()
+                    try:
+                        f = open(self.logfile, "r+")
+                        lines = f.readlines()
+                        f.seek(0) # put buffer at front
+                        for line in lines:
+                            line_ar = line.split()
+                            if int(line_ar[0]) == int(time.time()):
+                                Notify.init('Remind Me')
+                                notification = Notify.Notification.new('REMINDER', ' '.join(line_ar[1:]))
+                                notification.show()
+                            else:
+                                f.write(line)
+                        f.truncate()
+                        f.close()
+                    except IOError:
+                        print("no reminder log")
+                    # Notify.init('Remind Me')
+                    # notification = Notify.Notification.new('REMINDER', test)
+                    # notification.show()
+                    # time.sleep(10)
 
         def stop(self):
                 """

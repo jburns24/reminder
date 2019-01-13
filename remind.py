@@ -29,18 +29,18 @@ def getTimeIndex(argList):
 # storing the message and the time
 # message - what you want to be reminded about
 # time - when you want to be reminded (for first run seconds til reminder)
-def writeMessage(message, time):
-    log_file = '/tmp/reminder_log'
+def writeMessage(message, time, logfile):    
     file(log_file, 'a').write("%d %s\n" % (int(time),str(message)))
 
 if __name__ == '__main__':
     timeConverter = TimeConverter()
     pid_location = '/tmp/reminder.pid'
+    log_file = '/tmp/reminder_log'
     argList = sys.argv
     if len(sys.argv) == 1:
         print('no args')
         exit()
-    rDaemon = RDaemon(pid_location)
+    rDaemon = RDaemon(pid_location, log_file)
 
     # Check if the pid exists
     try:
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         if delimeter == 'in':
             total_time = timeConverter.getTotalSeconds(timeConverter.getTimePairs_in(time_str))
-            writeMessage(message_str, timeConverter.getSecondsTillReminder(total_time))
+            writeMessage(message_str, timeConverter.getSecondsTillReminder(total_time), log_file)
             if not pid:
                 rDaemon.start()
             exit()
