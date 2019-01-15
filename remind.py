@@ -74,7 +74,7 @@ if __name__ == '__main__':
         kill = True
     if kill:
         rDaemon.stop()
-    else:
-        rDaemon.daemonize()
-        rDaemon.run()        
+    # else:
+    #     rDaemon.daemonize()
+    #     rDaemon.run()        
 
